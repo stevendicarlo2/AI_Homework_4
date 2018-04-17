@@ -33,7 +33,7 @@ def get_move_symmetric(info, prospects, opponent):
     if is_normal_cooperation(prospects):
         return tit_2_tats_move(prospects, info, opponent)
     else:
-        return None
+        return no_coop_move(prospects, info, opponent)
 
 def save_data(data):
     return
@@ -59,6 +59,15 @@ def tit_2_tats_move(prospects, info, opponent):
         return bad
     else:
         return coop
+
+def no_coop_move(prospects, info, opponent):
+    opp_history = info["past_results"][opponent]
+    optimal_move = 0 if prospects[0][0] > prospects[1][1] else 1
+    if len(opp_history) < 1:
+        return optimal_move
+    last_opp_move = opp_history[-1][1]
+    move = 1 if last_opp_move == 0 else 0
+    return move
 
 def load_data():
     saved_info = {
