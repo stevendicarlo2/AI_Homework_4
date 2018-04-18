@@ -38,6 +38,21 @@ def get_move_symmetric(info, prospects, opponent):
 def save_data(data):
     return
 
+def get_range(past_results, opponent):
+    game_lengths = []
+    for opp, results in past_results:
+        if opp != opponent:
+            game_lengths.append(len(results))
+    return min(game_lengths), max(game_lengths)
+
+def dom_strategy(prospects):
+    if prospects[0][0] >= prospects[1][0] and prospects[0][1] >= prospects[1][1]:
+        return 0
+    elif prospects[1][0] >= prospects[0][0] and prospects[1][1] >= prospects[0][1]:
+        return 1
+    else:
+        return None
+
 def is_normal_cooperation(prospects):
     coop_value = max(prospects[0][0], prospects[1][1])
     min_other_move_value = min(prospects[0][1], prospects[1][0])
