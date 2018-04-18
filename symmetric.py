@@ -30,6 +30,19 @@ def get_move(state):
     }
 
 def get_move_symmetric(info, prospects, opponent):
+    past_results = info["past_results"]
+    if len(past_results) >= 3:
+        trial_range = get_range(past_results, opponent)
+        cutoff = trial_range[0] + .75*(trial_range[1]-trial_range[0])
+        print(int(cutoff))
+        turns_so_far = len(past_results[opponent])
+        print(past_results[opponent])
+        print("turns_so_far: ", turns_so_far)
+        dom_strat = dom_strategy(prospects)
+        if turns_so_far >= int(cutoff) and dom_strat is not None:
+            print("using dom_strat")
+            return dom_strat
+
     if is_normal_cooperation(prospects):
         return tit_2_tats_move(prospects, info, opponent)
     else:
@@ -40,7 +53,7 @@ def save_data(data):
 
 def get_range(past_results, opponent):
     game_lengths = []
-    for opp, results in past_results:
+    for opp, results in past_results.items():
         if opp != opponent:
             game_lengths.append(len(results))
     return min(game_lengths), max(game_lengths)
@@ -88,9 +101,10 @@ def load_data():
     saved_info = {
         "past_results": {
             "opp1": [(0, 1, 5), (1, 1, 2), (1, 0, 3)],
-            "opp2": []
+            "opp2": [(0, 1, 5), (1, 1, 2), (1, 0, 3),(0, 1, 5),(0, 1, 5),(0, 1, 5),(0, 1, 5)],
+            "opp3": [(0, 1, 5), (1, 1, 2), (1, 0, 3),(0, 1, 5), (1, 1, 2), (1, 0, 3),(0, 1, 5), (1, 1, 2), (1, 0, 3)]
         },
-        "last_opponent": "opp2",
+        "last_opponent": "opp1",
         "last_move": 0
     }
     return saved_info
@@ -98,12 +112,12 @@ def load_data():
 sample_state = {
    "team-code": "eef8976e",
    "game": "sym",
-   "opponent-name": "opp1",
+   "opponent-name": "opp2",
    "prev-repetitions": 10, #Might be None if first game ever, or other number
    "last-opponent-play": 1, #0 or 1 depending on strategy played
    "last-outcome": 4, #Might be None if first game, or whatever outcome of play is
    "prospects": [
-        [2,6],
+        [2,1],
         [3,2]
     ]
 }
