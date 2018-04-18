@@ -1,29 +1,32 @@
-TEAM_NAME = "mighty_ducks" #Pick a team name
+TEAM_NAME = "yungAIthugz" #Pick a team name
 MEMBERS = ["snd7nb", "yq4du"] #Include a list of your members’ UVA IDs
 
 def get_move(state):
-    team_code = state["team-code"]
-    opponent = state["opponent-name"]
-    last_opp_play = state["last-opponent-play"]
-    last_outcome = state["last-outcome"]
-    prospects = state["prospects"]
+    try:
+        team_code = state["team-code"]
+        opponent = state["opponent-name"]
+        last_opp_play = state["last-opponent-play"]
+        last_outcome = state["last-outcome"]
+        prospects = state["prospects"]
 
-    info = load_data()
-    if info == {}:
-        info = {"past_results": {}}
-    else:
-        last_opp = info["last_opponent"]
-        last_move = info["last_move"]
-        info["past_results"][last_opp].append((last_move, last_opp_play, last_outcome))
+        info = load_data()
+        if info == {}:
+            info = {"past_results": {}}
+        else:
+            last_opp = info["last_opponent"]
+            last_move = info["last_move"]
+            info["past_results"][last_opp].append((last_move, last_opp_play, last_outcome))
 
-    if opponent not in info["past_results"]:
-        info["past_results"][opponent] = []
+        if opponent not in info["past_results"]:
+            info["past_results"][opponent] = []
 
-    move = get_move_symmetric(info, prospects, opponent)
-    info["last_opponent"] = opponent
-    info["last_move"] = move
-    save_data(info)
-
+        move = get_move_symmetric(info, prospects, opponent)
+        info["last_opponent"] = opponent
+        info["last_move"] = move
+        save_data(info)
+    except:
+        move = 0
+        team_code = state["team-code"]
     return {
         "team-code": team_code,  # identifying team by the code assigned by game-program
         "move": move  # Can be 0 or 1 only
@@ -31,13 +34,10 @@ def get_move(state):
 
 def get_move_symmetric(info, prospects, opponent):
     past_results = info["past_results"]
-    if len(past_results) >= 3:
+    if len(past_results) >= 20:
         trial_range = get_range(past_results, opponent)
         cutoff = trial_range[0] + .75*(trial_range[1]-trial_range[0])
-        print(int(cutoff))
         turns_so_far = len(past_results[opponent])
-        print(past_results[opponent])
-        print("turns_so_far: ", turns_so_far)
         dom_strat = dom_strategy(prospects)
         if turns_so_far >= int(cutoff) and dom_strat is not None:
             print("using dom_strat")
@@ -47,9 +47,6 @@ def get_move_symmetric(info, prospects, opponent):
         return tit_2_tats_move(prospects, info, opponent)
     else:
         return no_coop_move(prospects, info, opponent)
-
-def save_data(data):
-    return
 
 def get_range(past_results, opponent):
     game_lengths = []
@@ -96,32 +93,4 @@ def no_coop_move(prospects, info, opponent):
     last_opp_move = opp_history[-1][1]
     move = 1 if last_opp_move == 0 else 0
     return move
-
-def load_data():
-    saved_info = {
-        "past_results": {
-            "opp1": [(0, 1, 5), (1, 1, 2), (1, 0, 3)],
-            "opp2": [(0, 1, 5), (1, 1, 2), (1, 0, 3),(0, 1, 5),(0, 1, 5),(0, 1, 5),(0, 1, 5)],
-            "opp3": [(0, 1, 5), (1, 1, 2), (1, 0, 3),(0, 1, 5), (1, 1, 2), (1, 0, 3),(0, 1, 5), (1, 1, 2), (1, 0, 3)]
-        },
-        "last_opponent": "opp1",
-        "last_move": 0
-    }
-    return saved_info
-
-sample_state = {
-   "team-code": "eef8976e",
-   "game": "sym",
-   "opponent-name": "opp2",
-   "prev-repetitions": 10, #Might be None if first game ever, or other number
-   "last-opponent-play": 1, #0 or 1 depending on strategy played
-   "last-outcome": 4, #Might be None if first game, or whatever outcome of play is
-   "prospects": [
-        [2,1],
-        [3,2]
-    ]
-}
-print(get_move(sample_state))
-
-
 
